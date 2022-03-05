@@ -6,7 +6,10 @@ on:
       - published
   push:
     branches:
-      - main
+      - v1.1
+      - v1.0
+      - v0.15
+      - v0.14
 
 jobs:
   docker:
@@ -25,7 +28,7 @@ jobs:
           else
             echo "Running against branch: ${BRANCH}"
             TAGS="${TAG_BASE}:${BRANCH}"
-            if [[ "${BRANCH}" == "main" ]]; then
+            if [[ "${BRANCH}" == "v1.1" ]]; then
               TAGS="${TAGS},${TAG_BASE}:latest"
             fi
           fi
