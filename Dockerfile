@@ -1,4 +1,4 @@
-FROM docker.io/hashicorp/terraform:1.0.11
+FROM docker.io/hashicorp/terraform:0.15.5
 
 RUN apk add --update-cache \
   curl \
