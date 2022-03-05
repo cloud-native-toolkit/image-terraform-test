@@ -1,4 +1,4 @@
-# Alpine Test image
+# Terraform Test image
 
-Produces a container image based on alpine that includes `curl` and `bash`.
+Produces a container image based on alpine that includes `curl`, `bash`, and `terraform` v1.0.11.
 
