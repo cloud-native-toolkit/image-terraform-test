@@ -6,3 +6,4 @@ RUN apk add --update-cache \
   gcompat \
   && rm -rf /var/cache/apk/*
 
+ENTRYPOINT ["/bin/bash"]
