@@ -6,4 +6,6 @@ RUN apk add --update-cache \
   gcompat \
   && rm -rf /var/cache/apk/*
 
+RUN curl -Lso /usr/local/bin/yq "https://github.com/mikefarah/yq/releases/download/v4.16.2/yq_linux_amd64" && chmod +x /usr/local/bin/yq
+
 ENTRYPOINT ["/bin/bash"]
