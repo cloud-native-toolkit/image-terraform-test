@@ -7,6 +7,8 @@ on:
       - 'v*.*'
     tags:
       - 'v*.*.*-v*.*'
+  release:
+    types: [published]
   pull_request:
     branches:
       - 'v*.*'
