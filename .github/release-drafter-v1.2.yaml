@@ -1,6 +1,6 @@
-name-template: 'terraform v1.1: v$RESOLVED_VERSION'
-tag-template: 'v1.1-v$RESOLVED_VERSION'
-tag-prefix: 'v1.1-'
+name-template: 'terraform v1.2: v$RESOLVED_VERSION'
+tag-template: 'v1.2-v$RESOLVED_VERSION'
+tag-prefix: 'v1.2-'
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 categories:
   - title: 'Features'
