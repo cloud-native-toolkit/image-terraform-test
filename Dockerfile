@@ -11,6 +11,7 @@ RUN apk add --no-cache \
   bash \
   gcompat \
   jq \
+  openssh-keygen \
   && rm -rf /var/cache/apk/*
 
 RUN curl -Lso /tmp/terraform.zip https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_$(if [[ "$TARGETPLATFORM" == "linux/arm64" ]]; then echo "arm64"; else echo "amd64"; fi).zip && \
