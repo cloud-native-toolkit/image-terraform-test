@@ -55,28 +55,42 @@ jobs:
         run: |
           SHORT_TERRAFORM=$(echo ${{ matrix.terraform }} | sed -E "s/([0-9]+[.][0-9]+)[.][0-9]+/\1/g")
           
-          TAGS="type=raw,value=v${SHORT_TERRAFORM}-${{ matrix.base}}"
+          echo "Short terraform: ${SHORT_TERRAFORM}"
+          echo "::set-output name=terraform::$SHORT_TERRAFORM"
           
           if [[ "${{ matrix.base }}" == "alpine" ]]; then
-            TAGS="${TAGS}\ntype=raw,value=v${SHORT_TERRAFORM}"
+            echo "Short tag enabled: true"
+            echo "::set-output name=short-enabled::true"
+          else
+            echo "Short tag enabled: false"
+            echo "::set-output name=short-enabled::false"
+          fi
+          
+          if [[ "${{ matrix.base }}" == "alpine" ]] && [[ "${SHORT_TERRAFORM}" == "1.2" ]]; then
+            echo "Latest enabled: true"
+            echo "::set-output name=latest-enabled::true"
+          else
+            echo "Latest enabled: false"
+            echo "::set-output name=latest-enabled::false"
           fi
           
           if [[ "${GITHUB_REF}" =~ refs/tags ]]; then
             RELEASE_TAG=${GITHUB_REF#refs/tags/}
-          
-            TAGS="${TAGS}\ntype=raw,value=v${SHORT_TERRAFORM}-${RELEASE_TAG}-${{ matrix.base }}"
+            echo "Release tag: ${RELEASE_TAG}"
+            echo "::set-output name=release-tag::$RELEASE_TAG"
+            echo "::set-output name=release-tag-enabled::true"
           
             if [[ "${{ matrix.base }}" == "alpine" ]]; then
-              TAGS="${TAGS}\ntype=raw,value=v${SHORT_TERRAFORM}-${RELEASE_TAG}"
+              echo "::set-output name=release-tag-short-enabled::true"          
+            else
+              echo "::set-output name=release-tag-short-enabled::false"          
             fi
+          else
+            echo "Release tag enabled: false"
+            echo "::set-output name=release-tag::main"
+            echo "::set-output name=release-tag-enabled::false"          
+            echo "::set-output name=release-tag-short-enabled::false"          
           fi
-          
-          if [[ "${{ matrix.base }}" == "alpine" ]] && [[ "${SHORT_TERRAFORM}" == "1.2" ]]; then
-            TAGS="${TAGS}\ntype=raw,value=latest"
-          fi
-          
-          echo "Tags: ${TAGS}"
-          echo "::set-output name=tags::$TAGS"
 
       - name: Docker CNTK meta ${{ matrix.base }}:${{ matrix.terraform }}
         id: cntk-meta
@@ -86,7 +100,12 @@ jobs:
           images: |
             quay.io/cloudnativetoolkit/terraform
           # Docker tags based on the following events/attributes
-          tags: ${{ steps.variables.outputs.tags }}
+          tags: |
+            type=raw,value=v${{ steps.variables.outputs.terraform }}-${{ matrix.base }}
+            type=raw,value=v${{ steps.variables.outputs.terraform }},enabled=${{ steps.variables.outputs.short-enabled }}
+            type=raw,value=v${{ steps.variables.outputs.terraform }}-${{ steps.variables.outputs.release-tag }}-${{ matrix.base }},enabled=${{ steps.variables.outputs.release-tag-enabled }}
+            type=raw,value=v${{ steps.variables.outputs.terraform }}-${{ steps.variables.outputs.release-tag }},enabled=${{ steps.variables.outputs.release-tag-short-enabled }}
+            type=raw,value=latest,enabled=${{ steps.variables.outputs.latest-enabled }}
 
       - name: Build and push ${{ matrix.base }}:${{ matrix.terraform }}
         uses: docker/build-push-action@v3
