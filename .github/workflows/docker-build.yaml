@@ -22,8 +22,12 @@ jobs:
           - alpine
           - fedora
         terraform:
+          - 1.0.11
           - 1.1.9
           - 1.2.4
+
+    env:
+      TERRAFORM_LATEST: "1.2"
 
     steps:
       - name: Checkout
@@ -62,7 +66,7 @@ jobs:
           
           BASE_ENABLED="false"
           LATEST_ENABLED="false"
-          if [[ "${SHORT_TERRAFORM}" == "1.2" ]]; then
+          if [[ "${SHORT_TERRAFORM}" == "${TERRAFORM_LATEST}" ]]; then
             BASE_ENABLED="true"
             
             if [[ "${{ matrix.base }}" == "alpine" ]]; then
