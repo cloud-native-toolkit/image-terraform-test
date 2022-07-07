@@ -1,21 +1,17 @@
-FROM alpine:3.16.0
+FROM fedora:37
 
 ARG TARGETPLATFORM
 ENV TERRAFORM_VERSION 1.1.9
 ENV TERRAGRUNT_VERSION 0.36.10
 ENV YQ_VERSION 4.25.2
 
-RUN apk add --no-cache \
+RUN dnf install -y \
   git \
-  curl \
-  bash \
-  gcompat \
   jq \
-  openssh-keygen \
-  sudo \
-  shadow \
+  openssh \
   openssl \
-  && rm -rf /var/cache/apk/*
+  unzip \
+  && dnf clean all
 
 RUN curl -Lso /tmp/terraform.zip https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_$(if [[ "$TARGETPLATFORM" == "linux/arm64" ]]; then echo "arm64"; else echo "amd64"; fi).zip && \
     mkdir -p /tmp/terraform && \
