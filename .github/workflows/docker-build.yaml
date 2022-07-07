@@ -60,9 +60,14 @@ jobs:
             SHORT_TAG_ENABLED="true"
           fi
           
+          BASE_ENABLED="false"
           LATEST_ENABLED="false"
-          if [[ "${{ matrix.base }}" == "alpine" ]] && [[ "${SHORT_TERRAFORM}" == "1.2" ]]; then
-            LATEST_ENABLED="true"
+          if [[ "${SHORT_TERRAFORM}" == "1.2" ]]; then
+            BASE_ENABLED="true"
+            
+            if [[ "${{ matrix.base }}" == "alpine" ]]; then
+              LATEST_ENABLED="true"
+            fi
           fi
           
           RELEASE_TAG=${GITHUB_REF#refs/tags/}
@@ -93,6 +98,9 @@ jobs:
           echo "Release tag short enabled: $RELEASE_TAG_SHORT_ENABLED"
           echo "::set-output name=release-tag-short-enabled::$RELEASE_TAG_SHORT_ENABLED"
           
+          echo "Base enabled: $BASE_ENABLED"
+          echo "::set-output name=base-enabled::$BASE_ENABLED"
+          
           echo "Latest enabled: $LATEST_ENABLED"
           echo "::set-output name=latest-enabled::$LATEST_ENABLED"
 
@@ -109,6 +117,7 @@ jobs:
             type=raw,value=v${{ steps.variables.outputs.terraform }},enable=${{ steps.variables.outputs.short-enabled }}
             type=raw,value=v${{ steps.variables.outputs.terraform }}-${{ steps.variables.outputs.release-tag }}-${{ matrix.base }},enable=${{ steps.variables.outputs.release-tag-enabled }}
             type=raw,value=v${{ steps.variables.outputs.terraform }}-${{ steps.variables.outputs.release-tag }},enable=${{ steps.variables.outputs.release-tag-short-enabled }}
+            type=raw,value=${{ matrix.base }},enable=${{ steps.variables.outputs.base-enabled }}
             type=raw,value=latest,enable=${{ steps.variables.outputs.latest-enabled }}
 
       - name: Build and push ${{ matrix.base }}:${{ matrix.terraform }}
