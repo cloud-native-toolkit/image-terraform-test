@@ -4,17 +4,27 @@ name: Docker build
 on:
   push:
     branches:
-      - 'v*.*'
+      - main
   release:
     types:
       - published
   pull_request:
     branches:
-      - 'v*.*'
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        base:
+          - alpine
+          - fedora
+        terraform:
+          - 1.1.9
+          - 1.2.4
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -39,7 +49,36 @@ jobs:
           username: ${{ secrets.QUAY_CNTK_USERNAME }}
           password: ${{ secrets.QUAY_CNTK_TOKEN }}
 
-      - name: Docker CNTK meta
+      - name: Setup variables ${{ matrix.base }}:${{ matrix.terraform }}
+        id: variables
+        shell: bash
+        run: |
+          SHORT_TERRAFORM=$(echo ${{ matrix.terraform }} | sed -E "s/([0-9]+[.][0-9]+)[.][0-9]+)/\1/g")
+          
+          TAGS="type=raw,value=v${SHORT_TERRAFORM}-${{ matrix.base}}"
+          
+          if [[ "${{ matrix.base }}" == "alpine" ]]; then
+            TAGS="${TAGS}\ntype=raw,value=v${SHORT_TERRAFORM}"
+          fi
+          
+          if [[ "${GITHUB_REF}" =~ refs/tags ]]; then
+            RELEASE_TAG=${GITHUB_REF#refs/tags/}
+          
+            TAGS="${TAGS}\ntype=raw,value=v${SHORT_TERRAFORM}-${RELEASE_TAG}-${{ matrix.base }}"
+          
+            if [[ "${{ matrix.base }}" == "alpine" ]]; then
+              TAGS="${TAGS}\ntype=raw,value=v${SHORT_TERRAFORM}-${RELEASE_TAG}"
+            fi
+          fi
+          
+          if [[ "${{ matrix.base }}" == "alpine" ]] && [[ "${SHORT_TERRAFORM}" == "1.2" ]]; then
+            TAGS="${TAGS}\ntype=raw,value=latest"
+          fi
+          
+          echo "Tags: ${TAGS}"
+          echo "::set-output name=tags::$TAGS"
+
+      - name: Docker CNTK meta ${{ matrix.base }}:${{ matrix.terraform }}
         id: cntk-meta
         uses: docker/metadata-action@v4
         with:
@@ -47,15 +86,15 @@ jobs:
           images: |
             quay.io/cloudnativetoolkit/terraform
           # Docker tags based on the following events/attributes
-          tags: |
-            type=ref,event=tag
-            type=ref,event=branch
-            type=raw,value=latest,enable={{is_default_branch}}
+          tags: ${{ steps.variables.outputs.tags }}
 
-      - name: Build and push
+      - name: Build and push ${{ matrix.base }}:${{ matrix.terraform }}
         uses: docker/build-push-action@v3
         with:
           context: .
+          file: Dockerfile-${{ matrix.base }}
+          build-args: |
+            TERRAFORM_VERSION=${{ matrix.terraform }}
           push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.cntk-meta.outputs.tags }}
