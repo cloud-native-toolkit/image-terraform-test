@@ -1,0 +1,52 @@
+schemaVersion: "2.0.0"
+
+metadataTest:
+  workdir: "/home/devops"
+  entrypoint: ["/bin/bash"]
+  user: devops
+
+commandTests:
+  - name: "git installation"
+    command: "git"
+    args: ["--help"]
+    expectedOutput: ["usage: git.*"]
+
+  - name: "curl installation"
+    command: "curl"
+    args: ["--help"]
+    expectedOutput: ["Usage: curl.*"]
+
+  - name: "bash installation"
+    command: "bash"
+    args: ["--help"]
+    expectedOutput: ["GNU bash.*"]
+
+  - name: "jq installation"
+    command: "jq"
+    args: ["--version"]
+    expectedOutput: ["jq.*"]
+
+  - name: "ssh-keygen installation"
+    command: "ssh-keygen"
+    args: ["-f", "test", "-N", "-"]
+    expectedOutput: ["Generating public/private rsa key pair.*"]
+
+  - name: "sudo installation"
+    command: "sudo"
+    args: ["--help"]
+    expectedOutput: ["sudo - execute a command as another user.*"]
+
+  - name: "terraform installation"
+    command: "terraform"
+    args: ["--version"]
+    expectedOutput: ["Terraform.*"]
+
+  - name: "yq installation"
+    command: "yq"
+    args: ["--help"]
+    expectedOutput: ["yq is a portable command-line YAML processor.*"]
+
+  - name: "terragrunt installation"
+    command: "terragrunt"
+    args: ["--help"]
+    expectedOutput: [".*terragrunt - Terragrunt is a thin wrapper.*"]
