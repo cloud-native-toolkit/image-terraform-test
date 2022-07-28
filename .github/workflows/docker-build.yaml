@@ -21,7 +21,7 @@ jobs:
         terraform:
           - 1.0.11
           - 1.1.9
-          - 1.2.4
+          - 1.2.6
 
     env:
       TERRAFORM_LATEST: "1.2"
