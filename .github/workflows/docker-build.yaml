@@ -21,7 +21,7 @@ jobs:
         terraform:
           - 1.0.11
           - 1.1.9
-          - 1.2.6
+          - 1.2.8
 
     env:
       TERRAFORM_LATEST: "1.2"
@@ -125,10 +125,39 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: Dockerfile-${{ matrix.base }}
+          file: Containerfile-${{ matrix.base }}
           build-args: |
             TERRAFORM_VERSION=${{ matrix.terraform }}
           push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.cntk-meta.outputs.tags }}
           labels: ${{ steps.cntk-meta.outputs.labels }}
+
+  verify:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Verify
+        run: |
+          echo "Success"
+
+  notify:
+    needs: ["build"]
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'pull_request' }}
+
+    strategy:
+      matrix:
+        repo:
+          - cloud-native-toolkit/image-github-terraform-runner
+          - cloud-native-toolkit/image-cli-tools-core
+
+    steps:
+      - name: Repository dispatch ${{ matrix.repo }}
+        uses: cloud-native-toolkit/action-repository-dispatch@main
+        with:
+          notifyRepo: ${{ matrix.repo }}
+          eventType: released
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
