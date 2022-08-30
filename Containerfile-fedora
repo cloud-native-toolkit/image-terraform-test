@@ -49,4 +49,6 @@ RUN useradd -u 10000 -g root -G sudo -d ${HOME} -m devops && \
 USER devops
 WORKDIR ${HOME}
 
+RUN alias unsest=unset
+
 ENTRYPOINT ["/bin/bash"]
