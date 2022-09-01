@@ -1,4 +1,4 @@
-FROM alpine:3.16.2
+FROM docker.io/alpine:3.16.2
 
 ARG TARGETPLATFORM
 ARG TERRAFORM_VERSION=1.2.8
@@ -15,6 +15,7 @@ RUN apk add --no-cache \
   sudo \
   shadow \
   openssl \
+  openssh \
   && rm -rf /var/cache/apk/*
 
 RUN curl -Lso /tmp/terraform.zip https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_$(if [[ "$TARGETPLATFORM" == "linux/arm64" ]]; then echo "arm64"; else echo "amd64"; fi).zip && \
