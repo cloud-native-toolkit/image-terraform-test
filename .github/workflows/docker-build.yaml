@@ -113,7 +113,7 @@ jobs:
 
       - name: Docker CNTK meta ${{ matrix.base }}:${{ matrix.terraform }}
         id: cntk-meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           # list of Docker images to use as base name for tags
           images: |
@@ -128,7 +128,7 @@ jobs:
             type=raw,value=latest,enable=${{ steps.variables.outputs.latest-enabled }}
 
       - name: Build and push ${{ matrix.base }}:${{ matrix.terraform }}
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: Containerfile-${{ matrix.base }}
